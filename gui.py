@@ -10,6 +10,7 @@ from PySide6.QtWidgets import (
     QLabel,
 )
 from PySide6.QtCore import QProcess, QProcessEnvironment
+from PySide6.QtGui import QTextCursor
 
 from scrape_images import PRODUCT_URL
 
@@ -64,9 +65,9 @@ class MainWindow(QWidget):
     def handle_output(self):
         data = self.process.readAllStandardOutput().data().decode("utf-8", errors="ignore")
         if data:
-            self.log_view.moveCursor(self.log_view.textCursor().End)
+            self.log_view.moveCursor(QTextCursor.End)
             self.log_view.insertPlainText(data)
-            self.log_view.moveCursor(self.log_view.textCursor().End)
+            self.log_view.moveCursor(QTextCursor.End)
 
     def process_finished(self):
         self.scrape_button.setEnabled(True)
