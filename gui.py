@@ -1,5 +1,5 @@
 import sys
-import logging
+import os
 from PySide6.QtWidgets import (
     QApplication,
     QWidget,
@@ -9,40 +9,9 @@ from PySide6.QtWidgets import (
     QTextEdit,
     QLabel,
 )
-from PySide6.QtCore import QObject, QThread, Signal
+from PySide6.QtCore import QProcess, QProcessEnvironment
 
-from scrape_images import scrape_images, PRODUCT_URL
-
-
-class LogEmitter(QObject):
-    message = Signal(str)
-
-
-class QtLogHandler(logging.Handler):
-    def __init__(self, emitter: LogEmitter):
-        super().__init__()
-        self.emitter = emitter
-
-    def emit(self, record: logging.LogRecord):
-        msg = self.format(record)
-        self.emitter.message.emit(msg)
-
-
-class Worker(QObject):
-    finished = Signal()
-
-    def __init__(self, url: str, logger: logging.Logger):
-        super().__init__()
-        self.url = url
-        self.logger = logger
-
-    def run(self):
-        try:
-            scrape_images(self.url, self.logger)
-        except Exception as e:
-            self.logger.error("Erreur pendant le scraping: %s", e)
-        finally:
-            self.finished.emit()
+from scrape_images import PRODUCT_URL
 
 
 class MainWindow(QWidget):
@@ -68,47 +37,40 @@ class MainWindow(QWidget):
         self.layout.addWidget(self.log_view)
         self.layout.addWidget(self.quit_button)
 
-        self.emitter = LogEmitter()
-        self.emitter.message.connect(self.log_view.append)
-
-        self.logger = logging.getLogger("scraper_gui")
-        self.logger.setLevel(logging.INFO)
-        handler = QtLogHandler(self.emitter)
-        formatter = logging.Formatter("%(asctime)s - %(message)s")
-        handler.setFormatter(formatter)
-        self.logger.addHandler(handler)
-        # Also log to console
-        console_handler = logging.StreamHandler(sys.stdout)
-        console_handler.setFormatter(formatter)
-        self.logger.addHandler(console_handler)
-
         self.scrape_button.clicked.connect(self.start_scrape)
         self.quit_button.clicked.connect(QApplication.instance().quit)
 
-        self.thread = None
+        self.process = QProcess(self)
+        self.process.setProcessChannelMode(QProcess.MergedChannels)
+        self.process.readyReadStandardOutput.connect(self.handle_output)
+        self.process.finished.connect(self.process_finished)
 
     def start_scrape(self):
         url = self.url_input.text().strip()
         if not url:
-            self.logger.warning("Aucune URL fournie")
+            self.log_view.append("Aucune URL fournie")
             return
 
         self.scrape_button.setEnabled(False)
         self.log_view.clear()
 
-        worker = Worker(url, self.logger)
-        thread = QThread(self)
-        worker.moveToThread(thread)
-        thread.started.connect(worker.run)
-        worker.finished.connect(thread.quit)
-        worker.finished.connect(worker.deleteLater)
-        thread.finished.connect(self.scrape_finished)
-        thread.finished.connect(thread.deleteLater)
-        thread.start()
-        self.thread = thread
+        env = QProcessEnvironment.systemEnvironment()
+        env.insert("PRODUCT_URL", url)
+        self.process.setProcessEnvironment(env)
 
-    def scrape_finished(self):
+        python = sys.executable
+        self.process.start(python, [os.path.join(os.path.dirname(__file__), "scrape_images.py")])
+
+    def handle_output(self):
+        data = self.process.readAllStandardOutput().data().decode("utf-8", errors="ignore")
+        if data:
+            self.log_view.moveCursor(self.log_view.textCursor().End)
+            self.log_view.insertPlainText(data)
+            self.log_view.moveCursor(self.log_view.textCursor().End)
+
+    def process_finished(self):
         self.scrape_button.setEnabled(True)
+        self.log_view.append("\nScraping termin\u00e9.")
 
 
 def main():
