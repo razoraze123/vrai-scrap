@@ -1,6 +1,5 @@
 import sys
 import logging
-import time
 from PySide6.QtWidgets import (
     QApplication,
     QWidget,
@@ -11,6 +10,8 @@ from PySide6.QtWidgets import (
     QLabel,
 )
 from PySide6.QtCore import QObject, QThread, Signal
+
+from scrape_images import scrape_images
 
 
 class LogEmitter(QObject):
@@ -27,15 +28,6 @@ class QtLogHandler(logging.Handler):
         self.emitter.message.emit(msg)
 
 
-def scrape(url: str, logger: logging.Logger):
-    """Dummy scrape function that logs progress."""
-    logger.info("D\u00e9but du scraping pour %s", url)
-    for i in range(1, 4):
-        time.sleep(1)
-        logger.info("\u2705 Etape %d termin\u00e9e", i)
-    logger.info("Fin du scraping")
-
-
 class Worker(QObject):
     finished = Signal()
 
@@ -46,7 +38,9 @@ class Worker(QObject):
 
     def run(self):
         try:
-            scrape(self.url, self.logger)
+            scrape_images(self.url, self.logger)
+        except Exception as e:
+            self.logger.error("Erreur pendant le scraping: %s", e)
         finally:
             self.finished.emit()
 
