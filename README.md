@@ -57,6 +57,12 @@ Modifier
 python scrape_images.py
 Le script ouvrira une session de navigateur invisible, naviguera sur la page produit, collectera toutes les balises <img> de la galerie, et téléchargera les images localement dans le dossier images/.
 
+Pour cibler une autre page produit, renseigne simplement la variable d'environnement `PRODUCT_URL` :
+
+```bash
+PRODUCT_URL="https://exemple.com/ma-page-produit" python scrape_images.py
+```
+
 📁 Structure du projet
 bash
 Copier
