@@ -2,6 +2,7 @@ import os
 import random
 import time
 from pathlib import Path
+import logging
 
 import requests
 from selenium import webdriver
@@ -77,6 +78,42 @@ def save_images(img_elements):
                 f.write(response.content)
         except Exception as e:
             print(f"\u26A0\uFE0F Erreur téléchargement {src}: {e}")
+
+
+def scrape_images(url: str, logger: logging.Logger | None = None) -> None:
+    """Scrape product images from the given URL and save them locally."""
+    if logger is None:
+        logger = logging.getLogger(__name__)
+
+    logger.info("D\u00e9but du scraping pour %s", url)
+    driver = setup_driver()
+    try:
+        images = fetch_images(driver, url)
+        logger.info("\U0001F4F8 %d images trouv\u00e9es.", len(images))
+
+        IMAGE_DIR.mkdir(exist_ok=True)
+        session = requests.Session()
+        for idx, img in enumerate(images, 1):
+            src = img.get_attribute("src")
+            if not src:
+                continue
+            if src.startswith("//"):
+                src = "https:" + src
+            logger.info("\u2B07\uFE0F T\u00e9l\u00e9chargement image %d: %s", idx, src)
+            try:
+                response = session.get(src, timeout=30)
+                response.raise_for_status()
+                ext = os.path.splitext(src.split("?")[0])[1] or ".jpg"
+                with open(IMAGE_DIR / f"image_{idx}{ext}", "wb") as f:
+                    f.write(response.content)
+            except Exception as e:
+                logger.error("\u26A0\uFE0F Erreur t\u00e9l\u00e9chargement %s: %s", src, e)
+    finally:
+        driver.quit()
+    logger.info(
+        "\u2705 Toutes les images ont \u00e9t\u00e9 enregistr\u00e9es dans le dossier %s",
+        IMAGE_DIR,
+    )
 
 
 def main():
