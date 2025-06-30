@@ -18,6 +18,9 @@ PRODUCT_URL = os.environ.get(
     "https://bob-crew.com/products/bob-ficelle-outdoor?variant=47696674062682",
 )
 
+# Default CSS selector for product images
+DEFAULT_SELECTOR = "div[data-media-type='image'] img"
+
 
 def setup_driver() -> webdriver.Chrome:
     """Configure and return a Chrome WebDriver in stealth mode."""
@@ -46,17 +49,13 @@ def setup_driver() -> webdriver.Chrome:
     return driver
 
 
-def fetch_images(driver: webdriver.Chrome, url: str):
+def fetch_images(driver: webdriver.Chrome, url: str, selector: str):
     """Return all <img> elements found in the product gallery."""
     driver.get(url)
     time.sleep(random.uniform(2, 4))
     wait = WebDriverWait(driver, 10)
-    wait.until(
-        EC.presence_of_all_elements_located(
-            (By.CSS_SELECTOR, "div[data-media-type='image'] img")
-        )
-    )
-    return driver.find_elements(By.CSS_SELECTOR, "div[data-media-type='image'] img")
+    wait.until(EC.presence_of_all_elements_located((By.CSS_SELECTOR, selector)))
+    return driver.find_elements(By.CSS_SELECTOR, selector)
 
 
 def save_images(img_elements):
@@ -80,7 +79,11 @@ def save_images(img_elements):
             print(f"\u26A0\uFE0F Erreur téléchargement {src}: {e}")
 
 
-def scrape_images(url: str, logger: logging.Logger | None = None) -> None:
+def scrape_images(
+    url: str,
+    logger: logging.Logger | None = None,
+    selector: str = DEFAULT_SELECTOR,
+) -> None:
     """Scrape product images from the given URL and save them locally."""
     if logger is None:
         logger = logging.getLogger(__name__)
@@ -88,8 +91,11 @@ def scrape_images(url: str, logger: logging.Logger | None = None) -> None:
     logger.info("D\u00e9but du scraping pour %s", url)
     driver = setup_driver()
     try:
-        images = fetch_images(driver, url)
-        logger.info("\U0001F4F8 %d images trouv\u00e9es.", len(images))
+        images = fetch_images(driver, url, selector)
+        if not images:
+            logger.info("Aucun \u00e9l\u00e9ment trouv\u00e9 avec le s\u00e9lecteur : %s", selector)
+            return
+        logger.info("\U0001F4C4 %d \u00e9l\u00e9ments trouv\u00e9s.", len(images))
 
         IMAGE_DIR.mkdir(exist_ok=True)
         session = requests.Session()
@@ -119,7 +125,10 @@ def scrape_images(url: str, logger: logging.Logger | None = None) -> None:
 def main():
     driver = setup_driver()
     try:
-        images = fetch_images(driver, PRODUCT_URL)
+        images = fetch_images(driver, PRODUCT_URL, DEFAULT_SELECTOR)
+        if not images:
+            print(f"Aucun élément trouvé avec le sélecteur : {DEFAULT_SELECTOR}")
+            return
         print(f"\U0001F4F8 {len(images)} images trouvées.")
         save_images(images)
     finally:
