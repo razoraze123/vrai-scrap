@@ -63,14 +63,11 @@ Pour cibler une autre page produit, renseigne simplement la variable d'environne
 PRODUCT_URL="https://exemple.com/ma-page-produit" python scrape_images.py
 ```
 
-🖥️ Interface graphique (GUI)
-Cette interface remplace l'usage de la ligne de commande.
-Lance simplement `gui.py`, saisis l'URL produit puis clique sur
-**Scraper les images**. Les logs du script s'affichent en direct
-dans la fenêtre.
-
-Dépendances : `PySide6`, `scrape_images.py`, `selenium` et
-`webdriver-manager`.
+🖥️ Interface graphique
+Une fenêtre Tkinter permet de lancer le scraping sans passer par la ligne de
+commande. Lance simplement `interface.py`, saisis l'URL du produit puis clique
+sur **Scraper les images**. Les messages du script apparaîtront directement dans
+la fenêtre. Aucune dépendance externe n'est requise pour cette interface.
 
 📁 Structure du projet
 bash
@@ -78,6 +75,7 @@ Copier
 Modifier
 .
 ├── scrape_images.py         # Script principal
+├── interface.py             # Petite interface Tkinter
 ├── README.md                # Ce fichier
 ├── requirements.txt         # Dépendances Python
 └── images/                  # Dossier généré avec toutes les images récupérées
