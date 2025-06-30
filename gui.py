@@ -11,7 +11,7 @@ from PySide6.QtWidgets import (
 )
 from PySide6.QtCore import QObject, QThread, Signal
 
-from scrape_images import scrape_images
+from scrape_images import scrape_images, PRODUCT_URL
 
 
 class LogEmitter(QObject):
@@ -53,6 +53,7 @@ class MainWindow(QWidget):
         self.layout = QVBoxLayout(self)
 
         self.url_input = QLineEdit()
+        self.url_input.setText(PRODUCT_URL)
         self.url_input.setPlaceholderText("URL du produit")
 
         self.scrape_button = QPushButton("Scraper les images")
