@@ -63,6 +63,15 @@ Pour cibler une autre page produit, renseigne simplement la variable d'environne
 PRODUCT_URL="https://exemple.com/ma-page-produit" python scrape_images.py
 ```
 
+🖥️ Interface graphique (GUI)
+Cette interface remplace l'usage de la ligne de commande.
+Lance simplement `gui.py`, saisis l'URL produit puis clique sur
+**Scraper les images**. Les logs du script s'affichent en direct
+dans la fenêtre.
+
+Dépendances : `PySide6`, `scrape_images.py`, `selenium` et
+`webdriver-manager`.
+
 📁 Structure du projet
 bash
 Copier
