@@ -3,6 +3,7 @@ import random
 import time
 from pathlib import Path
 import logging
+import argparse
 
 import requests
 from selenium import webdriver
@@ -147,11 +148,31 @@ def scrape_images(
 
 
 def main():
+    global IMAGE_DIR
+
+    parser = argparse.ArgumentParser(description="Scrape images from a product page")
+    parser.add_argument("url", help="URL de la page produit")
+    parser.add_argument(
+        "-s",
+        "--selector",
+        default=DEFAULT_SELECTOR,
+        help="Sélecteur CSS pour cibler les images (défaut: %(default)s)",
+    )
+    parser.add_argument(
+        "-o",
+        "--output-dir",
+        default=str(IMAGE_DIR),
+        help="Dossier de destination des images",
+    )
+    args = parser.parse_args()
+
+    IMAGE_DIR = Path(args.output_dir)
+
     driver = setup_driver()
     try:
-        images = fetch_images(driver, PRODUCT_URL, DEFAULT_SELECTOR)
+        images = fetch_images(driver, args.url, args.selector)
         if not images:
-            print(f"Aucun élément trouvé avec le sélecteur : {DEFAULT_SELECTOR}")
+            print(f"Aucun élément trouvé avec le sélecteur : {args.selector}")
             return
         print(f"\U0001F4F8 {len(images)} images trouvées.")
         save_images(images)

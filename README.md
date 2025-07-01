@@ -49,19 +49,27 @@ pip install -r requirements.txt
 Note : Pas besoin d’installer manuellement ChromeDriver. Le script utilise webdriver-manager qui détecte ta version de Chrome et installe le bon driver automatiquement.
 
 🚀 Utilisation
-Exécuter simplement le script :
-
-bash
-Copier
-Modifier
-python scrape_images.py
-Le script ouvrira une session de navigateur invisible, naviguera sur la page produit, collectera toutes les balises <img> de la galerie, et téléchargera les images localement dans le dossier images/.
-
-Pour cibler une autre page produit, renseigne simplement la variable d'environnement `PRODUCT_URL` :
+Lance le script en fournissant l'URL de la page produit :
 
 ```bash
-PRODUCT_URL="https://exemple.com/ma-page-produit" python scrape_images.py
+python scrape_images.py https://exemple.com/ma-page-produit
 ```
+
+Tu peux indiquer un sélecteur CSS personnalisé :
+
+```bash
+python scrape_images.py https://exemple.com/ma-page-produit \
+  --selector "div.gallery img"
+```
+
+Et choisir un dossier de sortie différent :
+
+```bash
+python scrape_images.py https://exemple.com/ma-page-produit \
+  --selector "div.gallery img" --output-dir mes_images
+```
+
+Par défaut, le sélecteur utilisé est `div[data-media-type='image'] img` et les images sont enregistrées dans `./images`.
 
 🖥️ Interface graphique
 Une fenêtre Tkinter permet de lancer le scraping sans passer par la ligne de
