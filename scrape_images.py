@@ -58,38 +58,63 @@ def fetch_images(driver: webdriver.Chrome, url: str, selector: str):
     return driver.find_elements(By.CSS_SELECTOR, selector)
 
 
+def download_image(
+    img,
+    index: int,
+    session: requests.Session,
+    logger: logging.Logger | None = None,
+) -> None:
+    """Extract the URL from ``img`` and save the file."""
+
+    src = (
+        img.get_attribute("src")
+        or img.get_attribute("data-src")
+        or img.get_attribute("data-photoswipe-src")
+        or None
+    )
+    if not src:
+        message = f"\u274C Aucun attribut d'image trouv\u00e9 pour l'\u00e9l\u00e9ment {index}"
+        if logger:
+            logger.warning(message)
+        else:
+            print(message)
+        return
+
+    if "{width}" in src:
+        message = f"\u26D4\uFE0F Image ignor\u00e9e (placeholder non r\u00e9solu) : {src}"
+        if logger:
+            logger.warning(message)
+        else:
+            print(message)
+        return
+
+    if src.startswith("//"):
+        src = "https:" + src
+
+    if logger:
+        logger.info("\u2B07\uFE0F T\u00e9l\u00e9chargement image %d: %s", index, src)
+    else:
+        print(f"\u2B07\uFE0F T\u00e9l\u00e9chargement image {index}: {src}")
+
+    try:
+        response = session.get(src, timeout=30)
+        response.raise_for_status()
+        ext = os.path.splitext(src.split("?")[0])[1] or ".jpg"
+        with open(IMAGE_DIR / f"image_{index}{ext}", "wb") as f:
+            f.write(response.content)
+    except Exception as e:
+        if logger:
+            logger.error("\u26A0\uFE0F Erreur t\u00e9l\u00e9chargement %s: %s", src, e)
+        else:
+            print(f"\u26A0\uFE0F Erreur t\u00e9l\u00e9chargement {src}: {e}")
+
+
 def save_images(img_elements):
     """Download the images to IMAGE_DIR."""
     IMAGE_DIR.mkdir(exist_ok=True)
     session = requests.Session()
     for idx, img in enumerate(img_elements, 1):
-        src = (
-            img.get_attribute("src")
-            or img.get_attribute("data-src")
-            or img.get_attribute("data-photoswipe-src")
-            or None
-        )
-        if not src:
-            print(f"\u274C Aucun attribut d'image trouvé pour l'élément {idx}")
-            continue
-
-        if "{width}" in src:
-            print(f"\u26D4\uFE0F Image ignorée (placeholder non résolu) : {src}")
-            # Pour tenter tout de même un téléchargement :
-            # src = src.replace("{width}", "1080")
-            continue
-        if src.startswith("//"):
-            src = "https:" + src
-        print(f"\u2B07\uFE0F Téléchargement image {idx}: {src}")
-        try:
-            response = session.get(src, timeout=30)
-            response.raise_for_status()
-            ext = os.path.splitext(src.split("?")[0])[1] or ".jpg"
-            with open(IMAGE_DIR / f"image_{idx}{ext}", "wb") as f:
-                f.write(response.content)
-        except Exception as e:
-            print(f"\u26A0\uFE0F Erreur téléchargement {src}: {e}")
-
+        download_image(img, idx, session)
 
 def scrape_images(
     url: str,
@@ -112,33 +137,7 @@ def scrape_images(
         IMAGE_DIR.mkdir(exist_ok=True)
         session = requests.Session()
         for idx, img in enumerate(images, 1):
-            src = (
-                img.get_attribute("src")
-                or img.get_attribute("data-src")
-                or img.get_attribute("data-photoswipe-src")
-                or None
-            )
-            if not src:
-                logger.warning(
-                    f"\u274C Aucun attribut d'image trouv\u00e9 pour l'\u00e9l\u00e9ment {idx}"
-                )
-                continue
-            if "{width}" in src:
-                logger.warning(f"\u26D4\uFE0F Image ignor\u00e9e (placeholder non r\u00e9solu) : {src}")
-                # Pour tenter tout de m\u00eame un t\u00e9l\u00e9chargement :
-                # src = src.replace("{width}", "1080")
-                continue
-            if src.startswith("//"):
-                src = "https:" + src
-            logger.info("\u2B07\uFE0F T\u00e9l\u00e9chargement image %d: %s", idx, src)
-            try:
-                response = session.get(src, timeout=30)
-                response.raise_for_status()
-                ext = os.path.splitext(src.split("?")[0])[1] or ".jpg"
-                with open(IMAGE_DIR / f"image_{idx}{ext}", "wb") as f:
-                    f.write(response.content)
-            except Exception as e:
-                logger.error("\u26A0\uFE0F Erreur t\u00e9l\u00e9chargement %s: %s", src, e)
+            download_image(img, idx, session, logger)
     finally:
         driver.quit()
     logger.info(
