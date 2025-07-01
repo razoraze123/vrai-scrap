@@ -55,7 +55,7 @@ class MainWindow(QMainWindow):
             widgets.btn_home.clicked.disconnect()
         except TypeError:
             pass
-        # widgets.btn_home.clicked.connect(self.run_scraper)
+        widgets.btn_home.clicked.connect(self.run_scraper)
 
         # USE CUSTOM TITLE BAR | USE AS "False" FOR MAC OR LINUX
         # ///////////////////////////////////////////////////////////////
@@ -71,7 +71,7 @@ class MainWindow(QMainWindow):
 
         # TOGGLE MENU
         # ///////////////////////////////////////////////////////////////
-        # widgets.toggleButton.clicked.connect(lambda: UIFunctions.toggleMenu(self, True))
+        widgets.toggleButton.clicked.connect(lambda: UIFunctions.toggleMenu(self, True))
 
         # SET UI DEFINITIONS
         # ///////////////////////////////////////////////////////////////
@@ -85,22 +85,22 @@ class MainWindow(QMainWindow):
         # ///////////////////////////////////////////////////////////////
 
         # LEFT MENUS
-        # widgets.btn_home.clicked.connect(self.buttonClick)
-        # widgets.btn_widgets.clicked.connect(self.buttonClick)
-        # widgets.btn_new.clicked.connect(self.buttonClick)
-        # widgets.btn_new.clicked.connect(self.run_scraper)
-        # widgets.btn_save.clicked.connect(self.buttonClick)
+        widgets.btn_home.clicked.connect(self.buttonClick)
+        widgets.btn_widgets.clicked.connect(self.buttonClick)
+        widgets.btn_new.clicked.connect(self.buttonClick)
+        widgets.btn_new.clicked.connect(self.run_scraper)
+        widgets.btn_save.clicked.connect(self.buttonClick)
 
         # EXTRA LEFT BOX
         def openCloseLeftBox():
             UIFunctions.toggleLeftBox(self, True)
-        # widgets.toggleLeftBox.clicked.connect(openCloseLeftBox)
-        # widgets.extraCloseColumnBtn.clicked.connect(openCloseLeftBox)
+        widgets.toggleLeftBox.clicked.connect(openCloseLeftBox)
+        widgets.extraCloseColumnBtn.clicked.connect(openCloseLeftBox)
 
         # EXTRA RIGHT BOX
         def openCloseRightBox():
             UIFunctions.toggleRightBox(self, True)
-        # widgets.settingsTopBtn.clicked.connect(openCloseRightBox)
+        widgets.settingsTopBtn.clicked.connect(openCloseRightBox)
 
         # SHOW APP
         # ///////////////////////////////////////////////////////////////
