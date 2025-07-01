@@ -49,7 +49,13 @@ pip install -r requirements.txt
 Note : Pas besoin d’installer manuellement ChromeDriver. Le script utilise webdriver-manager qui détecte ta version de Chrome et installe le bon driver automatiquement.
 
 🚀 Utilisation
-Lance le script en fournissant l'URL de la page produit :
+Pour lancer l'interface graphique, exécute :
+
+```bash
+python Modern_GUI_PyDracula_PySide6_or_PyQt6/main.py
+```
+
+Tu peux aussi lancer le script en ligne de commande en fournissant l'URL de la page produit :
 
 ```bash
 python scrape_images.py https://exemple.com/ma-page-produit
@@ -82,21 +88,22 @@ d'environnement `USER_AGENT` et `PROXY_URL`.
 Par défaut, le sélecteur utilisé est `div[data-media-type='image'] img` et les images sont enregistrées dans `./images`.
 
 🖥️ Interface graphique
-Une fenêtre Tkinter permet de lancer le scraping sans passer par la ligne de
-commande. Lance simplement `interface.py`, saisis l'URL du produit puis clique
-sur **Scraper les images**. Les messages du script apparaîtront directement dans
-la fenêtre. Aucune dépendance externe n'est requise pour cette interface.
+L'interface utilise maintenant le thème **PyDracula** basé sur PySide6. Lance
+`main.py` pour ouvrir la fenêtre puis clique sur le bouton **New** pour démarrer
+le scraping. Une boîte de dialogue confirmera la fin de l'opération ou
+affichera un message d'erreur en cas de problème.
 
 📁 Structure du projet
 bash
 Copier
 Modifier
-.
-├── scrape_images.py         # Script principal
-├── interface.py             # Petite interface Tkinter
-├── README.md                # Ce fichier
-├── requirements.txt         # Dépendances Python
-└── images/                  # Dossier généré avec toutes les images récupérées
+. 
+├── scrape_images.py                         # Script principal
+├── Modern_GUI_PyDracula_PySide6_or_PyQt6/
+│   └── main.py                              # Interface graphique PySide6
+├── README.md                                # Ce fichier
+├── requirements.txt                         # Dépendances Python
+└── images/                                  # Dossier généré avec toutes les images récupérées
 🔐 Contournement de l’anti-scraping
 Le projet inclut :
 

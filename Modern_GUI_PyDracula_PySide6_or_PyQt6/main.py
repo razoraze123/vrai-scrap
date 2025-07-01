@@ -17,6 +17,8 @@
 import sys
 import os
 import platform
+from PySide6.QtWidgets import QMessageBox
+import scrape_images
 
 # IMPORT / GUI AND MODULES AND WIDGETS
 # ///////////////////////////////////////////////////////////////
@@ -70,6 +72,7 @@ class MainWindow(QMainWindow):
         widgets.btn_home.clicked.connect(self.buttonClick)
         widgets.btn_widgets.clicked.connect(self.buttonClick)
         widgets.btn_new.clicked.connect(self.buttonClick)
+        widgets.btn_new.clicked.connect(self.run_scraper)
         widgets.btn_save.clicked.connect(self.buttonClick)
 
         # EXTRA LEFT BOX
@@ -137,6 +140,13 @@ class MainWindow(QMainWindow):
 
         # PRINT BTN NAME
         print(f'Button "{btnName}" pressed!')
+
+    def run_scraper(self):
+        try:
+            scrape_images.scrape_images(scrape_images.PRODUCT_URL)
+            QMessageBox.information(self, "Succès", "Le scraping est terminé !")
+        except Exception as e:
+            QMessageBox.critical(self, "Erreur", f"Erreur lors du scraping : {e}")
 
 
     # RESIZE EVENTS
