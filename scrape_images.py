@@ -51,12 +51,46 @@ def setup_driver() -> webdriver.Chrome:
 
 
 def fetch_images(driver: webdriver.Chrome, url: str, selector: str):
-    """Return all <img> elements found in the product gallery."""
+    """Return <img> elements matching ``selector`` or use a fallback."""
     driver.get(url)
     time.sleep(random.uniform(2, 4))
     wait = WebDriverWait(driver, 10)
-    wait.until(EC.presence_of_all_elements_located((By.CSS_SELECTOR, selector)))
-    return driver.find_elements(By.CSS_SELECTOR, selector)
+
+    try:
+        wait.until(
+            EC.presence_of_all_elements_located((By.CSS_SELECTOR, selector))
+        )
+    except Exception:
+        # If the explicit selector fails we will use the fallback
+        pass
+
+    images = driver.find_elements(By.CSS_SELECTOR, selector)
+    if images:
+        return images
+
+    # Fallback: collect visible <img> nodes and filter by dimensions
+    wait.until(EC.presence_of_all_elements_located((By.TAG_NAME, "img")))
+    imgs = driver.find_elements(By.TAG_NAME, "img")
+    filtered = []
+    for img in imgs:
+        if not img.is_displayed():
+            continue
+        width = img.size.get("width", 0)
+        height = img.size.get("height", 0)
+        if width < 300 or height < 300:
+            continue
+        cls = (img.get_attribute("class") or "").lower()
+        parent_cls = ""
+        try:
+            parent_cls = (
+                img.find_element(By.XPATH, "..").get_attribute("class") or ""
+            ).lower()
+        except Exception:
+            pass
+        if "thumbnail" in cls or "thumbnail" in parent_cls:
+            continue
+        filtered.append(img)
+    return filtered
 
 
 def _best_url_from_srcset(srcset: str) -> str | None:
