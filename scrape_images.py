@@ -4,6 +4,7 @@ import time
 from pathlib import Path
 import logging
 import argparse
+from typing import Optional
 
 import requests
 from selenium import webdriver
@@ -30,7 +31,7 @@ DEFAULT_USER_AGENT = os.environ.get(
 PROXY_URL = os.environ.get("PROXY_URL")
 
 
-def setup_driver(user_agent: str = DEFAULT_USER_AGENT, proxy_url: str | None = None) -> webdriver.Chrome:
+def setup_driver(user_agent: str = DEFAULT_USER_AGENT, proxy_url: Optional[str] = None) -> webdriver.Chrome:
     """Configure and return a Chrome WebDriver in stealth mode."""
 
     options = webdriver.ChromeOptions()
@@ -98,7 +99,7 @@ def fetch_images(driver: webdriver.Chrome, url: str, selector: str):
     return filtered
 
 
-def _best_url_from_srcset(srcset: str) -> str | None:
+def _best_url_from_srcset(srcset: str) -> Optional[str]:
     """Return the URL with the highest resolution from a ``srcset`` string."""
 
     candidates = []
@@ -126,8 +127,8 @@ def _best_url_from_srcset(srcset: str) -> str | None:
 def _extract_image_url(
     img,
     index: int,
-    logger: logging.Logger | None = None,
-) -> str | None:
+    logger: Optional[logging.Logger] = None,
+) -> Optional[str]:
     """Inspect ``img`` element attributes and return the best image URL."""
 
     for attr in ("srcset", "data-srcset", "data-lazy"):
@@ -157,7 +158,7 @@ def download_image(
     img,
     index: int,
     session: requests.Session,
-    logger: logging.Logger | None = None,
+    logger: Optional[logging.Logger] = None,
 ) -> None:
     """Extract the URL from ``img`` and save the file."""
 
@@ -194,7 +195,7 @@ def download_image(
             print(f"\u26A0\uFE0F Erreur t\u00e9l\u00e9chargement {src}: {e}")
 
 
-def create_session(user_agent: str = DEFAULT_USER_AGENT, proxy_url: str | None = None) -> requests.Session:
+def create_session(user_agent: str = DEFAULT_USER_AGENT, proxy_url: Optional[str] = None) -> requests.Session:
     """Return a ``requests`` session with optional headers and proxy."""
 
     session = requests.Session()
@@ -204,7 +205,7 @@ def create_session(user_agent: str = DEFAULT_USER_AGENT, proxy_url: str | None =
     return session
 
 
-def save_images(img_elements, user_agent: str = DEFAULT_USER_AGENT, proxy_url: str | None = None):
+def save_images(img_elements, user_agent: str = DEFAULT_USER_AGENT, proxy_url: Optional[str] = None):
     """Download the images to IMAGE_DIR."""
     IMAGE_DIR.mkdir(exist_ok=True)
     session = create_session(user_agent, proxy_url)
@@ -213,10 +214,10 @@ def save_images(img_elements, user_agent: str = DEFAULT_USER_AGENT, proxy_url: s
 
 def scrape_images(
     url: str,
-    logger: logging.Logger | None = None,
+    logger: Optional[logging.Logger] = None,
     selector: str = DEFAULT_SELECTOR,
     user_agent: str = DEFAULT_USER_AGENT,
-    proxy_url: str | None = PROXY_URL,
+    proxy_url: Optional[str] = PROXY_URL,
 ) -> None:
     """Scrape product images from the given URL and save them locally."""
     if logger is None:
