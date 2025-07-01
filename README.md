@@ -52,7 +52,7 @@ Note : Pas besoin d’installer manuellement ChromeDriver. Le script utilise web
 Pour lancer l'interface graphique, exécute :
 
 ```bash
-python Modern_GUI_PyDracula_PySide6_or_PyQt6/main.py
+python main.py
 ```
 
 Tu peux aussi lancer le script en ligne de commande en fournissant l'URL de la page produit :
@@ -98,12 +98,14 @@ bash
 Copier
 Modifier
 . 
-├── scrape_images.py                         # Script principal
-├── Modern_GUI_PyDracula_PySide6_or_PyQt6/
-│   └── main.py                              # Interface graphique PySide6
-├── README.md                                # Ce fichier
-├── requirements.txt                         # Dépendances Python
-└── images/                                  # Dossier généré avec toutes les images récupérées
+├── scrape_images.py   # Script principal
+├── main.py            # Interface graphique PySide6
+├── modules/           # Fichiers utilitaires PyDracula
+├── themes/            # Thèmes PyDracula
+├── widgets/           # Widgets personnalisés
+├── README.md          # Ce fichier
+├── requirements.txt   # Dépendances Python
+└── images/            # Dossier généré avec toutes les images récupérées
 🔐 Contournement de l’anti-scraping
 Le projet inclut :
 
