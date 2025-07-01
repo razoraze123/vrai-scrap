@@ -72,6 +72,12 @@ def save_images(img_elements):
         if not src:
             print(f"\u274C Aucun attribut d'image trouvé pour l'élément {idx}")
             continue
+
+        if "{width}" in src:
+            print(f"\u26D4\uFE0F Image ignorée (placeholder non résolu) : {src}")
+            # Pour tenter tout de même un téléchargement :
+            # src = src.replace("{width}", "1080")
+            continue
         if src.startswith("//"):
             src = "https:" + src
         print(f"\u2B07\uFE0F Téléchargement image {idx}: {src}")
@@ -116,6 +122,11 @@ def scrape_images(
                 logger.warning(
                     f"\u274C Aucun attribut d'image trouv\u00e9 pour l'\u00e9l\u00e9ment {idx}"
                 )
+                continue
+            if "{width}" in src:
+                logger.warning(f"\u26D4\uFE0F Image ignor\u00e9e (placeholder non r\u00e9solu) : {src}")
+                # Pour tenter tout de m\u00eame un t\u00e9l\u00e9chargement :
+                # src = src.replace("{width}", "1080")
                 continue
             if src.startswith("//"):
                 src = "https:" + src
