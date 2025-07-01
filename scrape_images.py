@@ -22,8 +22,15 @@ PRODUCT_URL = os.environ.get(
 # Default CSS selector for product images
 DEFAULT_SELECTOR = "div[data-media-type='image'] img"
 
+# Optional defaults for customization
+DEFAULT_USER_AGENT = os.environ.get(
+    "USER_AGENT",
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/113.0.0.0 Safari/537.36",
+)
+PROXY_URL = os.environ.get("PROXY_URL")
 
-def setup_driver() -> webdriver.Chrome:
+
+def setup_driver(user_agent: str = DEFAULT_USER_AGENT, proxy_url: str | None = None) -> webdriver.Chrome:
     """Configure and return a Chrome WebDriver in stealth mode."""
 
     options = webdriver.ChromeOptions()
@@ -34,11 +41,9 @@ def setup_driver() -> webdriver.Chrome:
     options.add_argument("--no-sandbox")
     options.add_experimental_option("excludeSwitches", ["enable-automation"])
     options.add_experimental_option("useAutomationExtension", False)
-    options.add_argument(
-        "user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
-        "AppleWebKit/537.36 (KHTML, like Gecko) "
-        "Chrome/113.0.0.0 Safari/537.36"
-    )
+    options.add_argument(f"user-agent={user_agent}")
+    if proxy_url:
+        options.add_argument(f"--proxy-server={proxy_url}")
 
     driver = webdriver.Chrome(
         service=Service(ChromeDriverManager().install()), options=options
@@ -189,10 +194,20 @@ def download_image(
             print(f"\u26A0\uFE0F Erreur t\u00e9l\u00e9chargement {src}: {e}")
 
 
-def save_images(img_elements):
+def create_session(user_agent: str = DEFAULT_USER_AGENT, proxy_url: str | None = None) -> requests.Session:
+    """Return a ``requests`` session with optional headers and proxy."""
+
+    session = requests.Session()
+    session.headers["User-Agent"] = user_agent
+    if proxy_url:
+        session.proxies = {"http": proxy_url, "https": proxy_url}
+    return session
+
+
+def save_images(img_elements, user_agent: str = DEFAULT_USER_AGENT, proxy_url: str | None = None):
     """Download the images to IMAGE_DIR."""
     IMAGE_DIR.mkdir(exist_ok=True)
-    session = requests.Session()
+    session = create_session(user_agent, proxy_url)
     for idx, img in enumerate(img_elements, 1):
         download_image(img, idx, session)
 
@@ -200,13 +215,15 @@ def scrape_images(
     url: str,
     logger: logging.Logger | None = None,
     selector: str = DEFAULT_SELECTOR,
+    user_agent: str = DEFAULT_USER_AGENT,
+    proxy_url: str | None = PROXY_URL,
 ) -> None:
     """Scrape product images from the given URL and save them locally."""
     if logger is None:
         logger = logging.getLogger(__name__)
 
     logger.info("D\u00e9but du scraping pour %s", url)
-    driver = setup_driver()
+    driver = setup_driver(user_agent, proxy_url)
     try:
         images = fetch_images(driver, url, selector)
         if not images:
@@ -215,7 +232,7 @@ def scrape_images(
         logger.info("\U0001F4C4 %d \u00e9l\u00e9ments trouv\u00e9s.", len(images))
 
         IMAGE_DIR.mkdir(exist_ok=True)
-        session = requests.Session()
+        session = create_session(user_agent, proxy_url)
         for idx, img in enumerate(images, 1):
             download_image(img, idx, session, logger)
     finally:
@@ -243,18 +260,30 @@ def main():
         default=str(IMAGE_DIR),
         help="Dossier de destination des images",
     )
+    parser.add_argument(
+        "-u",
+        "--user-agent",
+        default=DEFAULT_USER_AGENT,
+        help="User-Agent personnalisé",
+    )
+    parser.add_argument(
+        "-p",
+        "--proxy",
+        default=PROXY_URL,
+        help="URL du proxy à utiliser",
+    )
     args = parser.parse_args()
 
     IMAGE_DIR = Path(args.output_dir)
 
-    driver = setup_driver()
+    driver = setup_driver(args.user_agent, args.proxy)
     try:
         images = fetch_images(driver, args.url, args.selector)
         if not images:
             print(f"Aucun élément trouvé avec le sélecteur : {args.selector}")
             return
         print(f"\U0001F4F8 {len(images)} images trouvées.")
-        save_images(images)
+        save_images(images, args.user_agent, args.proxy)
     finally:
         driver.quit()
     print(f"\u2705 Toutes les images ont été enregistrées dans le dossier {IMAGE_DIR}")
