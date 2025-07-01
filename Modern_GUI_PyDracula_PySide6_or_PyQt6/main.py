@@ -162,12 +162,40 @@ class MainWindow(QMainWindow):
 
     def run_scraper(self):
         url = widgets.lineEdit_url.text().strip()
+        selector = widgets.lineEdit_selector.text().strip()
+
         if not url:
             QMessageBox.warning(self, "Erreur", "Veuillez saisir une URL valide.")
             return
+        if not selector:
+            QMessageBox.warning(self, "Erreur", "Veuillez saisir un sélecteur CSS.")
+            return
+
         try:
-            scrape_images.scrape_images(url)
-            QMessageBox.information(self, "Succès", "Le scraping est terminé !")
+            # On crée un logger temporaire qui envoie les messages dans log_browser
+            import logging
+
+            class QTextEditLogger(logging.Handler):
+                def __init__(self, text_edit):
+                    super().__init__()
+                    self.text_edit = text_edit
+
+                def emit(self, record):
+                    msg = self.format(record)
+                    self.text_edit.append(msg)
+
+            logger = logging.getLogger("ScrapingLogger")
+            logger.setLevel(logging.INFO)
+            logger.handlers.clear()
+
+            log_handler = QTextEditLogger(widgets.log_browser)
+            log_handler.setFormatter(logging.Formatter("%(message)s"))
+            logger.addHandler(log_handler)
+
+            # On appelle le moteur avec les champs dynamiques
+            import scrape_images
+            scrape_images.scrape_images(url, selector=selector, logger=logger)
+
         except Exception as e:
             QMessageBox.critical(self, "Erreur", f"Erreur lors du scraping : {e}")
 

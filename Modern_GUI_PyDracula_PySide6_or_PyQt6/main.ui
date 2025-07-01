@@ -2721,22 +2721,36 @@ background-repeat: no-repeat;</string>
                         </widget>
                        </item>
                        <item>
-                        <widget class="QLineEdit" name="lineEdit_url">
-                         <property name="placeholderText">
-                          <string>URL du produit</string>
-                         </property>
-                        </widget>
-                       </item>
-                       <item>
-                        <widget class="QPushButton" name="btn_launch_scraping">
-                         <property name="text">
-                          <string>Lancer le scraping</string>
-                         </property>
-                        </widget>
-                       </item>
-                      </layout>
-                     </widget>
+                       <widget class="QLineEdit" name="lineEdit_url">
+                        <property name="placeholderText">
+                         <string>URL du produit</string>
+                        </property>
+                       </widget>
+                      </item>
+                      <item>
+                       <widget class="QLineEdit" name="lineEdit_selector">
+                        <property name="placeholderText">
+                         <string>Sélecteur CSS</string>
+                        </property>
+                       </widget>
+                      </item>
+                      <item>
+                       <widget class="QPushButton" name="btn_launch_scraping">
+                        <property name="text">
+                         <string>Lancer le scraping</string>
+                        </property>
+                       </widget>
+                      </item>
+                      <item>
+                       <widget class="QTextEdit" name="log_browser">
+                        <property name="readOnly">
+                         <bool>true</bool>
+                        </property>
+                       </widget>
+                      </item>
+                     </layout>
                     </widget>
+                   </widget>
                    </item>
                   </layout>
                  </widget>
