@@ -40,6 +40,22 @@ class MainWindow(QMainWindow):
         self.ui.setupUi(self)
         global widgets
         widgets = self.ui
+        # —— Renommage des boutons ——
+        # Tous les boutons sauf "home" passent en "À venir"
+        widgets.btn_widgets.setText("À venir")
+        widgets.btn_new    .setText("À venir")
+        widgets.btn_save   .setText("À venir")
+        widgets.btn_exit   .setText("À venir")
+
+        # Le bouton "home" devient "Scraping Image"
+        widgets.btn_home.setText("Scraping Image")
+
+        # —— Reconnexion du clic de btn_home à la fonction de scraping ——
+        try:
+            widgets.btn_home.clicked.disconnect()
+        except TypeError:
+            pass
+        widgets.btn_home.clicked.connect(self.run_scraper)
 
         # USE CUSTOM TITLE BAR | USE AS "False" FOR MAC OR LINUX
         # ///////////////////////////////////////////////////////////////
