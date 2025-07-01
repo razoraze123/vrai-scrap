@@ -69,6 +69,16 @@ python scrape_images.py https://exemple.com/ma-page-produit \
   --selector "div.gallery img" --output-dir mes_images
 ```
 
+Tu peux aussi personnaliser le *User-Agent* et/ou passer par un proxy :
+
+```bash
+python scrape_images.py https://exemple.com/ma-page-produit \
+  --user-agent "MonAgent/1.0" --proxy http://127.0.0.1:8080
+```
+
+Ces deux options peuvent également être définies via les variables
+d'environnement `USER_AGENT` et `PROXY_URL`.
+
 Par défaut, le sélecteur utilisé est `div[data-media-type='image'] img` et les images sont enregistrées dans `./images`.
 
 🖥️ Interface graphique
