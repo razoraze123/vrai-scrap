@@ -2713,7 +2713,7 @@ background-repeat: no-repeat;</string>
                        <item>
                         <widget class="QLabel" name="label">
                          <property name="text">
-                          <string>NEW PAGE TEST</string>
+                          <string>📷 Scraping Image</string>
                          </property>
                          <property name="alignment">
                           <set>Qt::AlignCenter</set>
@@ -2721,35 +2721,86 @@ background-repeat: no-repeat;</string>
                         </widget>
                        </item>
                        <item>
-                       <widget class="QLineEdit" name="lineEdit_url">
-                        <property name="placeholderText">
-                         <string>URL du produit</string>
-                        </property>
-                       </widget>
-                      </item>
-                      <item>
-                       <widget class="QLineEdit" name="lineEdit_selector">
-                        <property name="placeholderText">
-                         <string>Sélecteur CSS</string>
-                        </property>
-                       </widget>
-                      </item>
-                      <item>
-                       <widget class="QPushButton" name="btn_launch_scraping">
-                        <property name="text">
-                         <string>Lancer le scraping</string>
-                        </property>
-                       </widget>
-                      </item>
-                      <item>
-                       <widget class="QTextEdit" name="log_browser">
-                        <property name="readOnly">
-                         <bool>true</bool>
-                        </property>
-                       </widget>
-                      </item>
-                     </layout>
-                    </widget>
+                        <layout class="QFormLayout" name="formLayout">
+                         <item row="0" column="0">
+                          <widget class="QLabel" name="label_url_prefix">
+                           <property name="text">
+                            <string>🔗</string>
+                           </property>
+                          </widget>
+                         </item>
+                         <item row="0" column="1">
+                          <widget class="QLineEdit" name="lineEdit_url">
+                           <property name="placeholderText">
+                            <string>URL du produit</string>
+                           </property>
+                          </widget>
+                         </item>
+                         <item row="1" column="0">
+                          <widget class="QLabel" name="label_selector_prefix">
+                           <property name="text">
+                            <string>🏷️</string>
+                           </property>
+                          </widget>
+                         </item>
+                         <item row="1" column="1">
+                          <widget class="QLineEdit" name="lineEdit_selector">
+                           <property name="placeholderText">
+                            <string>Sélecteur CSS</string>
+                           </property>
+                          </widget>
+                         </item>
+                        </layout>
+                       </item>
+                       <item>
+                        <layout class="QHBoxLayout" name="buttons_layout">
+                         <property name="alignment">
+                          <set>Qt::AlignHCenter</set>
+                         </property>
+                         <item>
+                          <widget class="QPushButton" name="btn_launch_scraping">
+                           <property name="text">
+                            <string>🚀 Lancer le scraping</string>
+                           </property>
+                          </widget>
+                         </item>
+                         <item>
+                          <widget class="QPushButton" name="btn_reset_fields">
+                           <property name="text">
+                            <string>🔄 Réinitialiser</string>
+                           </property>
+                          </widget>
+                         </item>
+                        </layout>
+                       </item>
+                       <item>
+                        <widget class="QLabel" name="label_logs">
+                         <property name="text">
+                          <string>🧾 Logs :</string>
+                         </property>
+                        </widget>
+                       </item>
+                       <item>
+                        <widget class="QTextEdit" name="log_browser">
+                         <property name="minimumSize">
+                          <size>
+                           <width>0</width>
+                           <height>80</height>
+                          </size>
+                         </property>
+                         <property name="maximumSize">
+                          <size>
+                           <width>16777215</width>
+                           <height>400</height>
+                          </size>
+                         </property>
+                         <property name="readOnly">
+                          <bool>true</bool>
+                         </property>
+                        </widget>
+                       </item>
+                      </layout>
+                     </widget>
                    </widget>
                    </item>
                   </layout>
