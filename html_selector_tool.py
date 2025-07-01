@@ -3,6 +3,30 @@ from tkinter import messagebox, scrolledtext
 from bs4 import BeautifulSoup
 
 
+def trouver_conteneur_image(premiere_image):
+    """Remonter jusqu'au parent pertinent pour les images principales."""
+    if not premiere_image:
+        return None
+
+    # Cas spécifique li.product__media-item souvent présent sur Shopify
+    conteneur = premiere_image.find_parent("li", class_="product__media-item")
+    if conteneur:
+        return conteneur
+
+    parent = premiere_image.parent
+    while parent and parent.name not in ("html", "body"):
+        classes = " ".join(parent.get("class", []))
+        # On considère ce parent comme pertinent s'il contient des mots-clés
+        if any(mot in classes for mot in ("media", "gallery", "image")):
+            return parent
+        # Ou s'il regroupe plusieurs images valides
+        if len([img for img in parent.find_all("img") if est_image_valide(img)]) > 1:
+            return parent
+        parent = parent.parent
+
+    return premiere_image.parent
+
+
 def est_image_valide(img_tag):
     src = img_tag.get("src", "")
     if not src or "data:" in src or not src.startswith(("//", "http")):
@@ -55,15 +79,27 @@ def launch_tool(parent=None):
         soup = BeautifulSoup(contenu_html, 'html.parser')
         resultats.delete("1.0", tk.END)
 
-        tag_principal = soup.find(True)
-        if tag_principal:
-            tag_name = tag_principal.name
-            classes = tag_principal.get('class', [])
-            sel_css = f"{tag_name}{'.' + '.'.join(classes) if classes else ''}"
-            resultats.insert(tk.END, f"\U0001F4E6 Bloc principal : {sel_css}\n\n")
-
         images = soup.find_all("img")
         images_valides = [img for img in images if est_image_valide(img)]
+
+        if images_valides:
+            premier_img = images_valides[0]
+            conteneur = trouver_conteneur_image(premier_img)
+            if conteneur:
+                tag_name = conteneur.name
+                classes = conteneur.get("class", [])
+                sel_css = f"{tag_name}{'.' + '.'.join(classes) if classes else ''}"
+                resultats.insert(
+                    tk.END,
+                    f"\U0001F4E6 Conteneur image principal : {sel_css}\n\n",
+                )
+        else:
+            tag_principal = soup.find(True)
+            if tag_principal:
+                tag_name = tag_principal.name
+                classes = tag_principal.get("class", [])
+                sel_css = f"{tag_name}{'.' + '.'.join(classes) if classes else ''}"
+                resultats.insert(tk.END, f"\U0001F4E6 Bloc principal : {sel_css}\n\n")
 
         if images_valides:
             resultats.insert(tk.END, f"\U0001F5BC\uFE0F Images d\u00e9tect\u00e9es ({len(images_valides)}):\n")
