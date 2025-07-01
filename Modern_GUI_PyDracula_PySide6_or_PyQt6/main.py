@@ -48,8 +48,9 @@ class MainWindow(QMainWindow):
 
 
 
-        # Bouton pour lancer le scraping depuis la nouvelle page
+        # Boutons de l'onglet Scraping Image
         widgets.btn_launch_scraping.clicked.connect(self.run_scraper)
+        widgets.btn_reset_fields.clicked.connect(self.reset_fields)
 
         # USE CUSTOM TITLE BAR | USE AS "False" FOR MAC OR LINUX
         # ///////////////////////////////////////////////////////////////
@@ -76,10 +77,29 @@ class MainWindow(QMainWindow):
         widgets.tableWidget.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
 
         # Configure scraping page widgets
-        widgets.label.setText("Scraping Image")
+        widgets.label.setText("\ud83d\udcf7 Scraping Image")
+        title_font = widgets.label.font()
+        title_font.setPointSize(16)
+        title_font.setBold(True)
+        widgets.label.setFont(title_font)
+        widgets.label.setStyleSheet("color: #c678dd;")
+
+        widgets.log_browser.setMinimumHeight(80)
+        widgets.log_browser.setMaximumHeight(400)
         widgets.log_browser.setFixedHeight(200)
         widgets.log_browser.setStyleSheet(
-            "background-color: #333333; color: #dddddd; font-family: Consolas, Courier;"
+            "background-color: #1e1e1e; color: #cccccc; font-family: Consolas, monospace; border-radius: 4px;"
+        )
+
+        widgets.btn_launch_scraping.setCursor(Qt.PointingHandCursor)
+        widgets.btn_launch_scraping.setStyleSheet(
+            "QPushButton {background-color:#6272a4; padding:6px 12px; border-radius:6px;}"
+            "QPushButton:hover {background-color:#6f7fb8;}"
+        )
+        widgets.btn_reset_fields.setCursor(Qt.PointingHandCursor)
+        widgets.btn_reset_fields.setStyleSheet(
+            "QPushButton {background-color:#44475a; padding:6px 12px; border-radius:6px;}"
+            "QPushButton:hover {background-color:#51546e;}"
         )
 
         # Create settings page (4th tab)
@@ -206,8 +226,10 @@ class MainWindow(QMainWindow):
             return
 
         try:
-            # On crée un logger temporaire qui envoie les messages dans log_browser
+            # Logger envoyant les messages dans log_browser
             import logging
+            import time
+            from pathlib import Path
 
             class QTextEditLogger(logging.Handler):
                 def __init__(self, text_edit):
@@ -226,12 +248,25 @@ class MainWindow(QMainWindow):
             log_handler.setFormatter(logging.Formatter("%(message)s"))
             logger.addHandler(log_handler)
 
-            # On appelle le moteur avec les champs dynamiques
+            before = len(list(Path("images").glob("*")))
+            start = time.time()
+
             import scrape_images
             scrape_images.scrape_images(url, selector=selector, logger=logger)
 
+            elapsed = time.time() - start
+            after = len(list(Path("images").glob("*")))
+            downloaded = max(0, after - before)
+            logger.info("\U0001F5BC %d images téléchargées", downloaded)
+            logger.info("Durée : %.2fs", elapsed)
+
         except Exception as e:
             QMessageBox.critical(self, "Erreur", f"Erreur lors du scraping : {e}")
+
+    def reset_fields(self):
+        widgets.lineEdit_url.clear()
+        widgets.lineEdit_selector.clear()
+        widgets.log_browser.clear()
 
     # RESIZE EVENTS
     # ///////////////////////////////////////////////////////////////
