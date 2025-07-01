@@ -93,6 +93,13 @@ def launch_tool(parent=None):
                     tk.END,
                     f"\U0001F4E6 Conteneur image principal : {sel_css}\n\n",
                 )
+                ul_parent = conteneur.find_parent("ul", class_="product__media-list")
+                if ul_parent:
+                    generic_sel = ".product__media-list .product__media img.image-magnify-none"
+                    resultats.insert(
+                        tk.END,
+                        f"\U0001F3AF S\u00e9lecteur CSS sugg\u00e9r\u00e9 pour scraping : {generic_sel}\n\n",
+                    )
         else:
             tag_principal = soup.find(True)
             if tag_principal:
