@@ -50,12 +50,15 @@ class MainWindow(QMainWindow):
         # Le bouton "home" devient "Scraping Image"
         widgets.btn_home.setText("Scraping Image")
 
-        # —— Reconnexion du clic de btn_home à la fonction de scraping ——
+        # —— Reconnexion du clic de btn_home à l'affichage de la page de scraping ——
         try:
             widgets.btn_home.clicked.disconnect()
         except TypeError:
             pass
-        widgets.btn_home.clicked.connect(self.run_scraper)
+        widgets.btn_home.clicked.connect(lambda: self.show_scraping_page())
+
+        # Bouton pour lancer le scraping depuis la nouvelle page
+        widgets.btn_launch_scraping.clicked.connect(self.run_scraper)
 
         # USE CUSTOM TITLE BAR | USE AS "False" FOR MAC OR LINUX
         # ///////////////////////////////////////////////////////////////
@@ -158,11 +161,20 @@ class MainWindow(QMainWindow):
         print(f'Button "{btnName}" pressed!')
 
     def run_scraper(self):
+        url = widgets.lineEdit_url.text().strip()
+        if not url:
+            QMessageBox.warning(self, "Erreur", "Veuillez saisir une URL valide.")
+            return
         try:
-            scrape_images.scrape_images(scrape_images.PRODUCT_URL)
+            scrape_images.scrape_images(url)
             QMessageBox.information(self, "Succès", "Le scraping est terminé !")
         except Exception as e:
             QMessageBox.critical(self, "Erreur", f"Erreur lors du scraping : {e}")
+
+    def show_scraping_page(self):
+        widgets.stackedWidget.setCurrentWidget(widgets.new_page)
+        UIFunctions.resetStyle(self, "btn_home")
+        widgets.btn_home.setStyleSheet(UIFunctions.selectMenu(widgets.btn_home.styleSheet()))
 
 
     # RESIZE EVENTS
