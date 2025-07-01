@@ -41,21 +41,12 @@ class MainWindow(QMainWindow):
         global widgets
         widgets = self.ui
         # —— Renommage des boutons ——
-        # Tous les boutons sauf "home" passent en "À venir"
+        widgets.btn_home.setText("À venir")
         widgets.btn_widgets.setText("À venir")
-        widgets.btn_new    .setText("À venir")
-        widgets.btn_save   .setText("À venir")
-        widgets.btn_exit   .setText("À venir")
+        widgets.btn_new.setText("Scraping Image")
+        widgets.btn_save.setText("Paramètres")
 
-        # Le bouton "home" devient "Scraping Image"
-        widgets.btn_home.setText("Scraping Image")
 
-        # —— Reconnexion du clic de btn_home à l'affichage de la page de scraping ——
-        try:
-            widgets.btn_home.clicked.disconnect()
-        except TypeError:
-            pass
-        widgets.btn_home.clicked.connect(lambda: self.show_scraping_page())
 
         # Bouton pour lancer le scraping depuis la nouvelle page
         widgets.btn_launch_scraping.clicked.connect(self.run_scraper)
@@ -84,6 +75,47 @@ class MainWindow(QMainWindow):
         # ///////////////////////////////////////////////////////////////
         widgets.tableWidget.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
 
+        # Configure scraping page widgets
+        widgets.label.setText("Scraping Image")
+        widgets.log_browser.setFixedHeight(200)
+        widgets.log_browser.setStyleSheet(
+            "background-color: #333333; color: #dddddd; font-family: Consolas, Courier;"
+        )
+
+        # Create settings page (4th tab)
+        settings_page = QWidget()
+        widgets.settings_page = settings_page
+        settings_layout = QVBoxLayout(settings_page)
+        widgets.font_selector = QFontComboBox(settings_page)
+        widgets.color_selector = QComboBox(settings_page)
+        widgets.color_selector.addItems(["white", "lightgray", "yellow", "green", "red"])
+        widgets.height_slider = QSlider(Qt.Horizontal, settings_page)
+        widgets.height_slider.setRange(80, 400)
+        widgets.height_slider.setValue(200)
+        settings_layout.addWidget(widgets.font_selector)
+        settings_layout.addWidget(widgets.color_selector)
+        settings_layout.addWidget(widgets.height_slider)
+        widgets.stackedWidget.addWidget(settings_page)
+
+        def apply_font(font):
+            widgets.log_browser.setFont(font)
+
+        def apply_color(name):
+            current_font = widgets.log_browser.font().family()
+            widgets.log_browser.setStyleSheet(
+                f"background-color: #333333; color: {name}; font-family: {current_font};"
+            )
+
+        def apply_height(value):
+            widgets.log_browser.setFixedHeight(value)
+
+        widgets.font_selector.currentFontChanged.connect(apply_font)
+        widgets.color_selector.currentTextChanged.connect(apply_color)
+        widgets.height_slider.valueChanged.connect(apply_height)
+
+        # Apply initial settings
+        apply_color("white")
+
         # BUTTONS CLICK
         # ///////////////////////////////////////////////////////////////
 
@@ -91,7 +123,6 @@ class MainWindow(QMainWindow):
         widgets.btn_home.clicked.connect(self.buttonClick)
         widgets.btn_widgets.clicked.connect(self.buttonClick)
         widgets.btn_new.clicked.connect(self.buttonClick)
-        widgets.btn_new.clicked.connect(self.run_scraper)
         widgets.btn_save.clicked.connect(self.buttonClick)
 
         # EXTRA LEFT BOX
@@ -148,14 +179,17 @@ class MainWindow(QMainWindow):
             UIFunctions.resetStyle(self, btnName)
             btn.setStyleSheet(UIFunctions.selectMenu(btn.styleSheet()))
 
-        # SHOW NEW PAGE
+        # SHOW NEW PAGE (Scraping)
         if btnName == "btn_new":
-            widgets.stackedWidget.setCurrentWidget(widgets.new_page) # SET PAGE
-            UIFunctions.resetStyle(self, btnName) # RESET ANOTHERS BUTTONS SELECTED
-            btn.setStyleSheet(UIFunctions.selectMenu(btn.styleSheet())) # SELECT MENU
+            widgets.stackedWidget.setCurrentWidget(widgets.new_page)
+            UIFunctions.resetStyle(self, btnName)
+            btn.setStyleSheet(UIFunctions.selectMenu(btn.styleSheet()))
 
+        # SHOW SETTINGS PAGE
         if btnName == "btn_save":
-            print("Save BTN clicked!")
+            widgets.stackedWidget.setCurrentWidget(widgets.settings_page)
+            UIFunctions.resetStyle(self, btnName)
+            btn.setStyleSheet(UIFunctions.selectMenu(btn.styleSheet()))
 
         # PRINT BTN NAME
         print(f'Button "{btnName}" pressed!')
@@ -198,12 +232,6 @@ class MainWindow(QMainWindow):
 
         except Exception as e:
             QMessageBox.critical(self, "Erreur", f"Erreur lors du scraping : {e}")
-
-    def show_scraping_page(self):
-        widgets.stackedWidget.setCurrentWidget(widgets.new_page)
-        UIFunctions.resetStyle(self, "btn_home")
-        widgets.btn_home.setStyleSheet(UIFunctions.selectMenu(widgets.btn_home.styleSheet()))
-
 
     # RESIZE EVENTS
     # ///////////////////////////////////////////////////////////////
