@@ -1393,10 +1393,21 @@ class Ui_MainWindow(object):
 
         self.verticalLayout_20.addWidget(self.lineEdit_url)
 
+        self.lineEdit_selector = QLineEdit(self.new_page)
+        self.lineEdit_selector.setObjectName(u"lineEdit_selector")
+
+        self.verticalLayout_20.addWidget(self.lineEdit_selector)
+
         self.btn_launch_scraping = QPushButton(self.new_page)
         self.btn_launch_scraping.setObjectName(u"btn_launch_scraping")
 
         self.verticalLayout_20.addWidget(self.btn_launch_scraping)
+
+        self.log_browser = QTextEdit(self.new_page)
+        self.log_browser.setObjectName(u"log_browser")
+        self.log_browser.setReadOnly(True)
+
+        self.verticalLayout_20.addWidget(self.log_browser)
 
         self.stackedWidget.addWidget(self.new_page)
 
@@ -1664,6 +1675,7 @@ class Ui_MainWindow(object):
 
         self.label.setText(QCoreApplication.translate("MainWindow", u"NEW PAGE TEST", None))
         self.lineEdit_url.setPlaceholderText(QCoreApplication.translate("MainWindow", u"URL du produit", None))
+        self.lineEdit_selector.setPlaceholderText(QCoreApplication.translate("MainWindow", u"Sélecteur CSS", None))
         self.btn_launch_scraping.setText(QCoreApplication.translate("MainWindow", u"Lancer le scraping", None))
         self.btn_message.setText(QCoreApplication.translate("MainWindow", u"Message", None))
         self.btn_print.setText(QCoreApplication.translate("MainWindow", u"Print", None))
