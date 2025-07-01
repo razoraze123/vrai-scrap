@@ -59,6 +59,61 @@ def fetch_images(driver: webdriver.Chrome, url: str, selector: str):
     return driver.find_elements(By.CSS_SELECTOR, selector)
 
 
+def _best_url_from_srcset(srcset: str) -> str | None:
+    """Return the URL with the highest resolution from a ``srcset`` string."""
+
+    candidates = []
+    for item in srcset.split(','):
+        item = item.strip()
+        if not item:
+            continue
+        parts = item.split()
+        url = parts[0]
+        width = 0
+        if len(parts) > 1:
+            if parts[1].endswith('w'):
+                try:
+                    width = int(parts[1][:-1])
+                except ValueError:
+                    width = 0
+        candidates.append((width, url))
+    if not candidates:
+        return None
+    # choose candidate with max width (falls back to first if all widths are 0)
+    candidates.sort(key=lambda x: x[0])
+    return candidates[-1][1]
+
+
+def _extract_image_url(
+    img,
+    index: int,
+    logger: logging.Logger | None = None,
+) -> str | None:
+    """Inspect ``img`` element attributes and return the best image URL."""
+
+    for attr in ("srcset", "data-srcset", "data-lazy"):
+        value = img.get_attribute(attr)
+        if value:
+            url = _best_url_from_srcset(value) if "," in value else value
+            if url:
+                return url
+
+    src = (
+        img.get_attribute("src")
+        or img.get_attribute("data-src")
+        or img.get_attribute("data-photoswipe-src")
+    )
+    if not src:
+        message = f"\u274C Aucun attribut d'image trouv\u00e9 pour l'\u00e9l\u00e9ment {index}"
+        if logger:
+            logger.warning(message)
+        else:
+            print(message)
+        return None
+
+    return src
+
+
 def download_image(
     img,
     index: int,
@@ -67,18 +122,8 @@ def download_image(
 ) -> None:
     """Extract the URL from ``img`` and save the file."""
 
-    src = (
-        img.get_attribute("src")
-        or img.get_attribute("data-src")
-        or img.get_attribute("data-photoswipe-src")
-        or None
-    )
+    src = _extract_image_url(img, index, logger)
     if not src:
-        message = f"\u274C Aucun attribut d'image trouv\u00e9 pour l'\u00e9l\u00e9ment {index}"
-        if logger:
-            logger.warning(message)
-        else:
-            print(message)
         return
 
     if "{width}" in src:
