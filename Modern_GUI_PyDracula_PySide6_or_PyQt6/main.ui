@@ -2720,6 +2720,20 @@ background-repeat: no-repeat;</string>
                          </property>
                         </widget>
                        </item>
+                       <item>
+                        <widget class="QLineEdit" name="lineEdit_url">
+                         <property name="placeholderText">
+                          <string>URL du produit</string>
+                         </property>
+                        </widget>
+                       </item>
+                       <item>
+                        <widget class="QPushButton" name="btn_launch_scraping">
+                         <property name="text">
+                          <string>Lancer le scraping</string>
+                         </property>
+                        </widget>
+                       </item>
                       </layout>
                      </widget>
                     </widget>

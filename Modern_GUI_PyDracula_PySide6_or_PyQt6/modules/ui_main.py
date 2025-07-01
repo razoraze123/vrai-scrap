@@ -1388,6 +1388,16 @@ class Ui_MainWindow(object):
 
         self.verticalLayout_20.addWidget(self.label)
 
+        self.lineEdit_url = QLineEdit(self.new_page)
+        self.lineEdit_url.setObjectName(u"lineEdit_url")
+
+        self.verticalLayout_20.addWidget(self.lineEdit_url)
+
+        self.btn_launch_scraping = QPushButton(self.new_page)
+        self.btn_launch_scraping.setObjectName(u"btn_launch_scraping")
+
+        self.verticalLayout_20.addWidget(self.btn_launch_scraping)
+
         self.stackedWidget.addWidget(self.new_page)
 
         self.verticalLayout_15.addWidget(self.stackedWidget)
@@ -1653,6 +1663,8 @@ class Ui_MainWindow(object):
         self.tableWidget.setSortingEnabled(__sortingEnabled)
 
         self.label.setText(QCoreApplication.translate("MainWindow", u"NEW PAGE TEST", None))
+        self.lineEdit_url.setPlaceholderText(QCoreApplication.translate("MainWindow", u"URL du produit", None))
+        self.btn_launch_scraping.setText(QCoreApplication.translate("MainWindow", u"Lancer le scraping", None))
         self.btn_message.setText(QCoreApplication.translate("MainWindow", u"Message", None))
         self.btn_print.setText(QCoreApplication.translate("MainWindow", u"Print", None))
         self.btn_logout.setText(QCoreApplication.translate("MainWindow", u"Logout", None))
