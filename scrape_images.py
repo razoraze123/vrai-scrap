@@ -63,8 +63,14 @@ def save_images(img_elements):
     IMAGE_DIR.mkdir(exist_ok=True)
     session = requests.Session()
     for idx, img in enumerate(img_elements, 1):
-        src = img.get_attribute("src")
+        src = (
+            img.get_attribute("src")
+            or img.get_attribute("data-src")
+            or img.get_attribute("data-photoswipe-src")
+            or None
+        )
         if not src:
+            print(f"\u274C Aucun attribut d'image trouvé pour l'élément {idx}")
             continue
         if src.startswith("//"):
             src = "https:" + src
@@ -100,8 +106,16 @@ def scrape_images(
         IMAGE_DIR.mkdir(exist_ok=True)
         session = requests.Session()
         for idx, img in enumerate(images, 1):
-            src = img.get_attribute("src")
+            src = (
+                img.get_attribute("src")
+                or img.get_attribute("data-src")
+                or img.get_attribute("data-photoswipe-src")
+                or None
+            )
             if not src:
+                logger.warning(
+                    f"\u274C Aucun attribut d'image trouv\u00e9 pour l'\u00e9l\u00e9ment {idx}"
+                )
                 continue
             if src.startswith("//"):
                 src = "https:" + src
