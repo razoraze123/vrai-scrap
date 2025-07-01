@@ -3,6 +3,8 @@ from tkinter import scrolledtext
 import threading
 import logging
 
+import html_selector_tool
+
 import scrape_images
 
 DEFAULT_SELECTOR = scrape_images.DEFAULT_SELECTOR
@@ -54,6 +56,9 @@ def main() -> None:
 
     start_button = tk.Button(root, text="Scraper les images")
     start_button.pack(pady=(0, 5))
+
+    css_button = tk.Button(root, text="Ouvrir outil CSS", command=lambda: html_selector_tool.launch_tool(root))
+    css_button.pack(pady=(0, 5))
 
     log_text = scrolledtext.ScrolledText(root, state="disabled", width=80, height=20)
     log_text.pack(padx=5, pady=5)
